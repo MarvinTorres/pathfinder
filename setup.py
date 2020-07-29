@@ -25,7 +25,7 @@ else:
     BASE_ENV = Path('/')
 
 NAPP_NAME = 'pathfinder'
-NAPP_VERSION = '2.2.1'
+NAPP_VERSION = '2.2.2'
 
 # Kytos var folder
 VAR_PATH = BASE_ENV / 'var' / 'lib' / 'kytos'
@@ -36,7 +36,7 @@ INSTALLED_PATH = VAR_PATH / 'napps' / '.installed'
 CURRENT_DIR = Path('.').resolve()
 
 # NApps enabled by default
-CORE_NAPPS = []
+CORE_NAPPS = ['topology']
 
 
 # def read_version_from_json():
@@ -197,12 +197,12 @@ class DevelopMode(develop):
         dst = ENABLED_PATH / Path('kytos', NAPP_NAME)
         symlink_if_different(dst, src)
 
-    @staticmethod
-    def _create_file_symlinks():
-        """Symlink to required files."""
-        src = ENABLED_PATH / '__init__.py'
-        dst = CURRENT_DIR / 'napps' / '__init__.py'
-        symlink_if_different(src, dst)
+    # @staticmethod
+    # def _create_file_symlinks():
+    #     """Symlink to required files."""
+    #     src = ENABLED_PATH / '__init__.py'
+    #     dst = CURRENT_DIR / 'napps' / '__init__.py'
+    #     symlink_if_different(src, dst)
 
 
 def symlink_if_different(path, target):
@@ -220,7 +220,7 @@ def symlink_if_different(path, target):
 
 setup(name=f'kytos_{NAPP_NAME}',
       version=NAPP_VERSION,
-      description='Core Napps developed by Kytos Team',
+      description='Core NApps developed by Kytos Team',
       url='http://github.com/kytos/{NAPP_NAME}',
       author='Kytos Team',
       author_email='of-ng-dev@ncc.unesp.br',
