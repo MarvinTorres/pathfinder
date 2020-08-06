@@ -89,38 +89,24 @@ class Main(KytosNApp):
         paths = self._filter_paths(paths, desired, undesired)
         return jsonify({'paths': paths})
 
-    @rest('v3/', methods=['POST'])
+    @rest('v2/best-constrained-paths', methods=['POST'])
     def shortest_constrained_path(self):
         """Get the set of shortest paths between the source and destination."""
         data = request.get_json()
 
         source = data.get('source')
         destination = data.get('destination')
-        flexible = data.get('flexible', 0)
-        metrics = data.get('metrics',{})
-        try:
-            paths = self.graph.constrained_flexible_paths(source, destination,{},metrics,flexible)
-            return jsonify(paths)
-        except TypeError as err:
-            return jsonify({"error":err})
-
-
-    @rest('v4/', methods=['POST'])
-    def shortest_constrained_path2(self):
-        """Get the set of shortest paths between the source and destination."""
-        data = request.get_json()
-
-        source = data.get('source')
-        destination = data.get('destination')
-        metrics = data.get('metrics',{})
-        flexible_metrics = data.get('flexibleMetrics', {})
+        base_metrics = data.get('base_metrics', {})
+        fle_metrics = data.get('flexible_metrics', {})
+        minimum_hits = data.get('minimum_flexible_hits')
         try:
             paths = self.graph.constrained_flexible_paths(source, destination,
-                                            metrics, flexible_metrics)
+                                                          minimum_hits,
+                                                          base=base_metrics,
+                                                          flexible=fle_metrics)
             return jsonify(paths)
         except TypeError as err:
-            return jsonify({"error":err})
-
+            return jsonify({"error": str(err)}), 400
 
     @listen_to('kytos.topology.updated')
     def update_topology(self, event):
