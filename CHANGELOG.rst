@@ -13,8 +13,6 @@ Added
 
 Changed
 =======
-- Improved documentation about napp dependencies.
-- Changed tests structure to separate unit and integration tests.
 
 Deprecated
 ==========
