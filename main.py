@@ -89,6 +89,17 @@ class Main(KytosNApp):
         paths = self._filter_paths(paths, desired, undesired)
         return jsonify({'paths': paths})
 
+    @rest('v2/path-exact-delay', methods=['POST'])
+    def path_exact_delay(self):
+        """Calculate the path with the exact delay between the source and destination."""
+        data = request.get_json()
+
+        source = data.get('source')
+        destination = data.get('destination')
+        delay = data.get('delay')
+
+        return jsonify({"message": "hello"})
+
     @rest('v2/best-constrained-paths', methods=['POST'])
     def shortest_constrained_path(self):
         """Get the set of shortest paths between the source and destination."""
