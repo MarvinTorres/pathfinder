@@ -97,8 +97,24 @@ class Main(KytosNApp):
         source = data.get('source')
         destination = data.get('destination')
         delay = data.get('delay')
+<<<<<<< HEAD
 
         return jsonify({"message": "hello"})
+=======
+	
+        graph_data = {}
+        nodes = []
+        edges = []
+        for node in self.graph.get_nodes():
+            nodes.append(node)
+        for edge in self.graph.get_edges().data():
+            edges.append(edge)
+        
+        graph_data["Nodes"] = nodes
+        graph_data["Edges"] = edges
+
+        return jsonify(graph_data)
+>>>>>>> 0eef3741a704b5189196f914c9ef2fd91880614c
 
     @rest('v2/best-constrained-paths', methods=['POST'])
     def shortest_constrained_path(self):

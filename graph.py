@@ -33,6 +33,8 @@ class KytosGraph:
     def __init__(self):
         self.graph = nx.Graph()
         self._filter_functions = {}
+        self.pathColl = {}
+        self.exactPath = []
 
         def filter_leq(metric):  # Lower values are better
             return lambda x: (lambda y: y[2].get(metric, x) <= x)
@@ -182,4 +184,8 @@ class KytosGraph:
         return self.graph.nodes
     
     def get_edges(self):
+<<<<<<< HEAD
         return self.graph.edges
+=======
+        return self.graph.edges
+>>>>>>> 0eef3741a704b5189196f914c9ef2fd91880614c
