@@ -177,3 +177,9 @@ class KytosGraph:
         if not metadata:
             links = ((u, v) for u, v, d in links)
         return links
+
+    def get_nodes(self):
+        return self.graph.nodes
+    
+    def get_edges(self):
+        return self.graph.edges
