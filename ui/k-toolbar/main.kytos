@@ -119,7 +119,6 @@ module.exports = {
           self.show();
         }
       });
-
     },
     get_constrained_paths(){
       var self = this
@@ -179,8 +178,7 @@ module.exports = {
                       "subtitle": "by kytos/pathfinder"
                      }
        this.$kytos.$emit("showInfoPanel", content)
-
-   }
+    }
   },
 
   computed: {
@@ -223,9 +221,27 @@ module.exports = {
     },
     get_interfaces(){
       var interfaces = []
+      var switch_alias = ""
+      var interface_alias = ""
       $.each(this.switches, function(key, value){
+        switch_alias = ""
+        if (value.metadata.aliases != undefined && value.metadata.aliases.length != 0){
+          switch_alias = value.metadata.aliases[0]
+        }
         $.each(value.interfaces, function(key, value){
-          interfaces.push({value: key, description: key})
+          interface_alias = key
+          if (value.metadata.alias != undefined && value.metadata.alias != ""){
+            interface_alias = value.metadata.alias
+          } else if (value.port_number != undefined){
+            interface_alias = value.port_number
+          }
+
+          if (switch_alias != "" && interface_alias != key){
+            renamed = switch_alias + ": " + interface_alias
+            interfaces.push({value: key, description: renamed})
+          } else {
+            interfaces.push({value: key, description: key})
+          }
         });
       });
 
@@ -234,7 +250,11 @@ module.exports = {
     get_links(){
       var links = []
       $.each(this.links, function(key, value){
-        links.push({value:value.id, description:value.id});
+        if (value.metadata.aliases != undefined && value.metadata.aliases.length != 0){
+          links.push({value:value.id, description:value.metadata.aliases[0]})
+        } else {
+          links.push({value:value.id, description:value.id});
+        }
       });
 
       return links;
