@@ -96,6 +96,38 @@
 <script>
 module.exports = {
   methods: {
+    create_interface_id_to_alias(){
+      var self = this
+
+      var interfaces = []
+      var switch_alias = ""
+      var interface_alias = ""
+
+      var result = {}
+      $.each(this.switches, function(key, value){
+        switch_alias = ""
+        if (value.metadata.aliases != undefined && value.metadata.aliases.length != 0){
+          switch_alias = value.metadata.aliases[0]
+        }
+        $.each(value.interfaces, function(key, value){
+          interface_alias = key
+          if (value.metadata.alias != undefined && value.metadata.alias != ""){
+            interface_alias = value.metadata.alias
+          } else if (value.port_number != undefined){
+            interface_alias = value.port_number
+          }
+
+          if (switch_alias != "" && interface_alias != key){
+            renamed = switch_alias + ": " + interface_alias
+            result[key] = renamed
+          } else {
+            result[key] = key
+          }
+        });
+      });
+
+      self.interface_id_to_alias = result;
+    },
     get_paths (){
       var self = this
       $.ajax({
@@ -182,6 +214,14 @@ module.exports = {
   },
 
   computed: {
+    test(){
+      result = []
+      $.each(this.interface_id_to_alias, function(key, value){
+        result.push({value: key, description: value})
+      });
+
+      return result;
+    },
     metric_options(){
       var metric_options = {}
 
@@ -221,27 +261,9 @@ module.exports = {
     },
     get_interfaces(){
       var interfaces = []
-      var switch_alias = ""
-      var interface_alias = ""
       $.each(this.switches, function(key, value){
-        switch_alias = ""
-        if (value.metadata.aliases != undefined && value.metadata.aliases.length != 0){
-          switch_alias = value.metadata.aliases[0]
-        }
         $.each(value.interfaces, function(key, value){
-          interface_alias = key
-          if (value.metadata.alias != undefined && value.metadata.alias != ""){
-            interface_alias = value.metadata.alias
-          } else if (value.port_number != undefined){
-            interface_alias = value.port_number
-          }
-
-          if (switch_alias != "" && interface_alias != key){
-            renamed = switch_alias + ": " + interface_alias
-            interfaces.push({value: key, description: renamed})
-          } else {
-            interfaces.push({value: key, description: key})
-          }
+          interfaces.push({value: key, description: key})
         });
       });
 
@@ -263,6 +285,7 @@ module.exports = {
 
   created(){
     this.get_topology();
+    this.create_interface_id_to_alias();
   },
 
   data: function(){
@@ -293,7 +316,8 @@ module.exports = {
         priority: false,
         ownership: false
       },
-      minimum_flexible_hits: 0
+      minimum_flexible_hits: 0,
+      interface_id_to_alias: {}
     }
   }
 }
