@@ -3,9 +3,9 @@
     <div class="scroll">
       <k-accordion>
         <k-accordion-item title="Best Path">
-         <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
+         <k-dropdown icon="circle-o" title="Source:" :options="get_aliased_interfaces"
           :value.sync="source"></k-dropdown>
-         <k-dropdown icon="circle-o" title="Destination:" :options="get_interfaces"
+         <k-dropdown icon="circle-o" title="Destination:" :options="get_aliased_interfaces"
           :value.sync ="destination"></k-dropdown>
          <k-select icon="link" title="Desired links:" :options="get_links"
           :value.sync ="desired_links"></k-select>
@@ -16,9 +16,9 @@
         </k-accordion-item>
 
         <k-accordion-item title="Best Constrained Path">
-           <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
+           <k-dropdown icon="circle-o" title="Source:" :options="get_aliased_interfaces"
             :value.sync="source_constrained"></k-dropdown>
-           <k-dropdown icon="circle-o" title="Destination:" :options="get_interfaces"
+           <k-dropdown icon="circle-o" title="Destination:" :options="get_aliased_interfaces"
             :value.sync ="destination_constrained"></k-dropdown>
           <div class="metric">
             <div class="checkbox">
@@ -96,7 +96,7 @@
 <script>
 module.exports = {
   methods: {
-    create_interface_id_to_alias(){
+    get_aliased_interface_switches(){
       var self = this
 
       var interfaces = []
@@ -108,6 +108,7 @@ module.exports = {
         switch_alias = ""
         if (value.metadata.aliases != undefined && value.metadata.aliases.length != 0){
           switch_alias = value.metadata.aliases[0]
+          result[key] = switch_alias
         }
         $.each(value.interfaces, function(key, value){
           interface_alias = key
@@ -126,7 +127,7 @@ module.exports = {
         });
       });
 
-      self.interface_id_to_alias = result;
+      return result;
     },
     get_paths (){
       var self = this
@@ -144,7 +145,7 @@ module.exports = {
         url: this.$kytos_server_api + "kytos/pathfinder/v2",
         success: function(data) {
             if (data['paths'][0] !== undefined){
-                self.paths = data['paths'][0].hops;
+                self.paths = self.ids_to_aliases(data['paths'][0].hops);
             } else {
                 self.paths = []
             }
@@ -179,13 +180,24 @@ module.exports = {
         url: this.$kytos_server_api + "kytos/pathfinder/v2/best-constrained-paths",
         success: function(data) {
             if (data[0] !== undefined){
-                self.paths = data[0]['paths'][0];
+                self.paths = self.ids_to_aliases(data[0]['paths'][0]);
             } else {
                 self.paths = []
             }
           self.show();
         }
       });
+    },
+    ids_to_aliases(interfaces){
+      var result = []
+      var self = this
+      var id_to_aliases_table = self.get_aliased_interface_switches()
+
+      for(var interface of interfaces){
+        result.push(id_to_aliases_table[String(interface)])
+      }
+
+      return result;
     },
     get_topology(){
       var self = this
@@ -214,14 +226,6 @@ module.exports = {
   },
 
   computed: {
-    test(){
-      result = []
-      $.each(this.interface_id_to_alias, function(key, value){
-        result.push({value: key, description: value})
-      });
-
-      return result;
-    },
     metric_options(){
       var metric_options = {}
 
@@ -269,6 +273,17 @@ module.exports = {
 
       return interfaces;
     },
+    get_aliased_interfaces(){
+      var self = this
+      var interfaces = self.get_interfaces
+      var id_to_aliases_table = self.get_aliased_interface_switches()
+      
+      for (var interface of interfaces){
+        interface['description'] = id_to_aliases_table[String(interface['value'])]
+      }
+
+      return interfaces;
+    },
     get_links(){
       var links = []
       $.each(this.links, function(key, value){
@@ -285,7 +300,6 @@ module.exports = {
 
   created(){
     this.get_topology();
-    this.create_interface_id_to_alias();
   },
 
   data: function(){
@@ -317,7 +331,7 @@ module.exports = {
         ownership: false
       },
       minimum_flexible_hits: 0,
-      interface_id_to_alias: {}
+      aliased_interface_switches: {}
     }
   }
 }
