@@ -2,19 +2,6 @@
   <k-toolbar-item icon="compass" tooltip="Napp Pathfinder">
     <div class="scroll">
       <k-accordion>
-        <k-accordion-item title="Best Path">
-         <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
-          :value.sync="source"></k-dropdown>
-         <k-dropdown icon="circle-o" title="Destination:" :options="get_interfaces"
-          :value.sync ="destination"></k-dropdown>
-         <k-select icon="link" title="Desired links:" :options="get_links"
-          :value.sync ="desired_links"></k-select>
-         <k-select icon="link" title="Undesired links:" :options="get_links"
-          :value.sync ="undesired_links"></k-select>
-         <k-button icon="search" title="Search" :on_click="get_paths">
-         </k-button>
-        </k-accordion-item>
-
         <k-accordion-item title="Path with Exact Delay">
          <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
           :value.sync="source"></k-dropdown>
@@ -23,80 +10,6 @@
          <k-slider icon="adjust" :action="function(val) {path_delay = parseInt(val)}" max=1000></k-slider>
          <k-button icon="search" title="Search" :on_click="get_path_exact_delay">
          </k-button>
-        </k-accordion-item>
-
-        <k-accordion-item title="Best Constrained Path">
-           <k-dropdown icon="circle-o" title="Source:" :options="get_interfaces"
-            :value.sync="source_constrained"></k-dropdown>
-           <k-dropdown icon="circle-o" title="Destination:" :options="get_interfaces"
-            :value.sync ="destination_constrained"></k-dropdown>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'bandwidth'"></k-checkbox>
-            </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['bandwidth']" 
-               :value.sync="is_flexible.bandwidth"></k-dropdown>
-            </div>
-            <k-slider icon="adjust" :action="function(val) {metrics.bandwidth = parseInt(val)}"></k-slider>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'reliability'"></k-checkbox>
-            </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['reliability']" 
-              :value.sync="is_flexible.reliability"></k-dropdown>
-            </div>
-            <k-slider icon="adjust" :action="function(val) {metrics.reliability = parseInt(val)}"></k-slider>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'delay'"></k-checkbox>
-            </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['delay']" 
-              :value.sync="is_flexible.delay"></k-dropdown>
-            </div>
-            <k-slider icon="adjust" :action="function(val) {metrics.delay = parseInt(val)}"></k-slider>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'utilization'"></k-checkbox>
-            </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['utilization']" 
-              :value.sync="is_flexible.utilization"></k-dropdown>
-            </div>
-            <k-slider icon="adjust" :action="function(val) {metrics.utilization = parseInt(val)}"></k-slider>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'priority'"></k-checkbox>
-            </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['priority']" 
-              :value.sync="is_flexible.priority"></k-dropdown>
-            </div>
-            <k-slider icon="adjust" :action="function(val) {metrics.priority = parseInt(val)}"></k-slider>
-          </div>
-          <div class="metric">
-            <div class="checkbox">
-              <k-checkbox :model.sync = "checked_list" :value = "'ownership'"></k-checkbox>
-            </div>
-            <div class="dropdown">
-              <k-dropdown :options="metric_options['ownership']" 
-              :value.sync="is_flexible.ownership"></k-dropdown>
-            </div>
-          </div>
-          <k-input :value.sync="metrics.ownership"></k-input>
-          <div class="text">
-            Minimum Flexible Hits:
-          </div>
-          <k-slider :max = 6
-          :action="function (val) {minimum_flexible_hits = parseInt(val)}"></k-slider>
-          <k-button icon="search" title="Search" :on_click="get_constrained_paths">
-          </k-button>
         </k-accordion-item>
       <k-accordion>
     </div>

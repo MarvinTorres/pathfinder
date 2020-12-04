@@ -139,6 +139,23 @@ class KytosGraph:
         pathfinder = ExactDelayPathfinder()
         result = []
         result = pathfinder.search(self.graph, total_delay, source, destination)
+
+        for path_info in result:
+            i = 0
+            j = 0
+            path_delays = []
+            for i in range(0, len(path_info['path'])):
+                j = i + 1
+                if j in range(0, len(path_info['path'])):
+                    node_a = path_info['path'][i]
+                    node_b = path_info['path'][j]
+                    try:
+                        link_alias = node_a + " to " + node_b
+                        delay = self.graph.edges[node_a, node_b]['delay']
+                        path_delays.append({link_alias:delay})
+                    except KeyError:
+                        pass
+                    path_info['delays'] = path_delays
         return result
 
                
