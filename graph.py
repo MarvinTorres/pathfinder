@@ -35,13 +35,16 @@ class KytosGraph:
         self._filter_functions = {}
 
         def filter_leq(metric):  # Lower values are better
-            return lambda x: (lambda y: y[2].get(metric, x) <= x)
+            return lambda x: (lambda y: y[2].get(metric, x) <= x or \
+                                        y[2].get(metric, 0) == 0)
 
         def filter_geq(metric):  # Higher values are better
-            return lambda x: (lambda y: y[2].get(metric, x) >= x)
+            return lambda x: (lambda y: y[2].get(metric, x) >= x or \
+                                        y[2].get(metric, 0) == 0)
 
         def filter_eeq(metric):  # Equivalence
-            return lambda x: (lambda y: y[2].get(metric, x) == x)
+            return lambda x: (lambda y: y[2].get(metric, x) == x or \
+                                        y[2].get(metric, 0) == 0)
 
         self._filter_functions["ownership"] = Filter(
             str, filter_eeq("ownership"))
@@ -131,8 +134,8 @@ class KytosGraph:
         """Calculate the constrained shortest paths with flexibility."""
         base = metrics.get("base", {})
         flexible = metrics.get("flexible", {})
-        first_pass_links = list(self._filter_links(self.graph.edges(data=True),
-                                                   **base))
+        first_pass_links = self._filter_links(self.graph.edges(data=True),
+                                                   **base)
         length = len(flexible)
         if minimum_hits is None:
             minimum_hits = length
@@ -140,13 +143,12 @@ class KytosGraph:
         results = []
         paths = []
         i = 0
-        while (paths == [] and i in range(0, minimum_hits+1)):
+        while (results == [] and i in range(0, length-minimum_hits+1)):
             for combo in combinations(flexible.items(), length-i):
                 additional = dict(combo)
                 paths = self._constrained_shortest_paths(
                     source, destination,
-                    self._filter_links(first_pass_links,
-                                       metadata=False, **additional))
+                    self._filter_links(first_pass_links, **additional))
                 if paths != []:
                     results.append(
                         {"paths": paths, "metrics": {**base, **additional}})
@@ -155,6 +157,7 @@ class KytosGraph:
 
     def _constrained_shortest_paths(self, source, destination, links):
         paths = []
+        links = ((u, v) for u, v, d in links)
         try:
             paths = list(self._path_function(self.graph.edge_subgraph(links),
                                              source, destination))
@@ -166,14 +169,13 @@ class KytosGraph:
                     paths = [[source]]
         return paths
 
-    def _filter_links(self, links, metadata=True, **metrics):
+    def _filter_links(self, links, **metrics):
         for metric, value in metrics.items():
             filter_ = self._filter_functions.get(metric, None)
             if filter_ is not None:
                 try:
-                    links = filter_.run(value, links)
+                    links = list(filter_.run(value, links))
                 except TypeError as err:
                     raise TypeError(f"Error in {metric} value: {err}")
-        if not metadata:
-            links = ((u, v) for u, v, d in links)
+
         return links
