@@ -1,8 +1,13 @@
 """Module to help to create tests."""
+
 from unittest.mock import MagicMock
 
 from kytos.lib.helpers import (get_interface_mock, get_link_mock,
                                get_switch_mock)
+
+from kytos.core.interface import Interface
+from kytos.core.switch import Switch
+from kytos.core.link import Link
 
 
 def get_topology_mock():
@@ -39,13 +44,9 @@ def get_topology_mock():
     return topology
 
 
-def get_topology_with_metadata_mock():
-    """Create a topology with metadata."""
-    switches = {}
-    interfaces = {}
-    links = {}
-    i = 0
-
+def topology_setting():
+    """Set the default values associated
+    to a "real" topology."""
     switches_to_interface_counts = {"S1": 2, "S2": 2, "S3": 6, "S4": 2,
                                     "S5": 6, "S6": 5, "S7": 2, "S8": 8,
                                     "S9": 4, "S10": 3, "S11": 3,
@@ -98,6 +99,18 @@ def get_topology_with_metadata_mock():
         {"reliability": 3, "bandwidth": 100, "delay": 6},
         {"reliability": 5, "bandwidth": 10, "delay": 105}]
 
+    return links_to_interfaces, links_to_metadata, switches_to_interface_counts
+
+
+def get_topology_with_metadata_mock():
+    """Create a topology with metadata."""
+    switches = {}
+    interfaces = {}
+    links = {}
+    i = 0
+
+    links_to_interfaces, links_to_metadata, switches_to_interface_counts = topology_setting()
+
     for switch in switches_to_interface_counts:
         switches[switch] = get_switch_mock(switch)
 
@@ -111,6 +124,39 @@ def get_topology_with_metadata_mock():
         interface_a = interfaces[interfaces_str[0]]
         interface_b = interfaces[interfaces_str[1]]
         links[str(i)] = get_link_mock(interface_a, interface_b)
+        links[str(i)].metadata = links_to_metadata[i]
+        i += 1
+
+    topology = MagicMock()
+    topology.links = links
+    topology.switches = switches
+    return topology
+
+
+def get_topology_with_metadata():
+    """Create a topology with metadata."""
+    switches = {}
+    interfaces = {}
+    links = {}
+
+    links_to_interfaces, links_to_metadata, switches_to_interface_counts = topology_setting()
+
+    for switch in switches_to_interface_counts:
+        switches[switch] = Switch(switch)
+
+    for key, value in switches_to_interface_counts.items():
+        switches[key].interfaces = {}
+        for i in range(1, value + 1):
+            str1 = "{}:{}".format(switches[key].dpid, i)
+            interface = Interface(str1, i, switches[key])
+            switches[key].update_interface(interface)
+            interfaces[interface.id] = interface
+
+    i = 0
+    for interfaces_str in links_to_interfaces:
+        interface_a = interfaces[interfaces_str[0]]
+        interface_b = interfaces[interfaces_str[1]]
+        links[str(i)] = Link(interface_a, interface_b)
         links[str(i)].metadata = links_to_metadata[i]
         i += 1
 
@@ -134,7 +180,6 @@ def get_filter_links_fake(links, metadata=True, **metrics):
     if not metadata:
         return filtered_links_without_metadata
     return filtered_links
-
 # pylint: enable=unused-argument
 
 
